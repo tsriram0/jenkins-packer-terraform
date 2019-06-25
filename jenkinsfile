@@ -1,0 +1,37 @@
+pipeline {
+  agent any
+  tools {
+        maven 'MAVEN_HOME'
+        jdk 'JAVA_HOME'
+  }
+  stages {
+    stage('Clone repository') {
+        
+      steps {
+        checkout scm
+      }
+    }
+    stage('Build') {
+     steps {
+        sh 'mvn -B -DskipTests clean package'
+        sh 'echo $USER'
+        sh 'echo whoami'
+      }
+    }
+    stage('Create Packer AMI') {
+        steps {
+            sh 'packer build packer1.json'
+      }
+    }
+    stage('EC2 APP Deployment') {
+      steps {
+            sh 'terraform init'
+	        sh 'terraform plan -out plan.out'
+            sh 'terraform apply -auto-approve plan.out'
+            
+      }
+    }
+  }
+  
+}
+

@@ -1,20 +1,21 @@
-data "aws_ami" "example"{ 
-most_recent = true
+data "aws_ami" "image" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["packer-linux-aws-demo-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 
   owners = ["self"]
-  tags = {
-    Name   = "app-server"
-    Tested = "true"
-  }
+  
 }
 
-provider "aws" {
-  region = "us-east-1"
-}
-
-resource "aws_instance" "web" {
-  ami           = "${data.aws_ami.example}"
-  instance_type = "t2.micro"
+output "ami_id" {
+  value = "${data.aws_ami.image.id}"
 }
 
 provider "aws" {
